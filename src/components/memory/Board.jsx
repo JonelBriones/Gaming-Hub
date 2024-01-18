@@ -9,6 +9,8 @@ function Board() {
   const [boxTwo, setBoxTwo] = useState("");
   const [boxOneIDX, setBoxOneIDX] = useState("");
   const [boxTwoIDX, setBoxTwoIDX] = useState("");
+  const [win, setWin] = useState(false);
+  const [tries, setTries] = useState(0);
 
   let PICTURES = [
     "src/assets/Emote1_56x56.png",
@@ -24,6 +26,7 @@ function Board() {
 
   useEffect(() => {
     checkPair();
+    checkWin();
   }, [boxTwoIDX]);
   // boxTwo
   function createPairs() {
@@ -35,9 +38,19 @@ function Board() {
     // setPairs(shuffle(pairs));
   }
 
+  function checkWin() {
+    let result = board.filter((box) => box.pairFound == true);
+    if (result.length == 8) {
+      setWin(true);
+    }
+    console.log(result.length);
+  }
+
   function reset() {
     createPairs();
+    setWin(false);
     setBoard(defaultBoard);
+    setTries(0);
   }
 
   function check(idx) {
@@ -48,13 +61,13 @@ function Board() {
     } else {
       setBoxTwo(pairs[idx]);
       setBoxTwoIDX(idx);
+      setTries(tries + 1);
     }
     setFirstCheck(!firstCheck);
     checkToggle(idx);
   }
 
   function checkToggle(idx) {
-    console.log("checkToggle");
     setBoard(
       board.map((box, i) =>
         idx == i
@@ -69,8 +82,6 @@ function Board() {
   }
 
   function checkPair() {
-    console.log("checkPair");
-
     console.log(`previous:${boxOne}, current:${boxTwo}`);
     if (boxOne == boxTwo) {
       console.log(`Slot ${boxOne} and ${boxTwo} matches!`);
@@ -97,13 +108,13 @@ function Board() {
         boxOneIDX == i || boxTwoIDX == i ? { ...box, pairFound: true } : box
       )
     );
-    console.log(board);
   }
 
   return (
     <>
       <button onClick={() => reset()}>reset game</button>
-
+      <h4>Tries {tries}</h4>
+      {win && "Won"}
       <div className="box-container">
         {board.map((box, idx) => (
           <div key={idx} className="box" onClick={() => check(idx)}>
